@@ -22,9 +22,7 @@
 }
 
 - (void)getInitialNotification:(RCTPromiseResolveBlock)resolve reject:(RCTPromiseRejectBlock)reject {
-  NSDictionary* initialNotification = [[RNNotificationsStore sharedInstance] initialNotification];
-  [[RNNotificationsStore sharedInstance] setInitialNotification:nil];
-  resolve(initialNotification);
+    resolve([[RNNotificationsStore sharedInstance] initialNotification]);
 }
 
 - (void)finishHandlingAction:(NSString *)completionKey {

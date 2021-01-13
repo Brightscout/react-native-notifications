@@ -58,7 +58,7 @@
         for (UNNotification *notification in notifications) {
             [formattedNotifications addObject:[RCTConvert UNNotificationPayload:notification]];
         }
-        callback(@[formattedNotifications]);
+        callback(formattedNotifications);
     }];
 }
 
@@ -79,9 +79,9 @@
 - (void)checkPermissions:(RCTPromiseResolveBlock)resolve {
     [[UNUserNotificationCenter currentNotificationCenter] getNotificationSettingsWithCompletionHandler:^(UNNotificationSettings * _Nonnull settings) {
         resolve(@{
-                  @"badge": [NSNumber numberWithBool:settings.badgeSetting == UNNotificationSettingEnabled],
-                  @"sound": [NSNumber numberWithBool:settings.soundSetting == UNNotificationSettingEnabled],
-                  @"alert": [NSNumber numberWithBool:settings.alertSetting == UNNotificationSettingEnabled],
+                  @"badge": @(settings.badgeSetting == UNNotificationSettingEnabled),
+                  @"sound": @(settings.soundSetting == UNNotificationSettingEnabled),
+                  @"alert": @(settings.alertSetting == UNNotificationSettingEnabled),
                   });
     }];
 }

@@ -1,7 +1,7 @@
 module.exports = {
   template: {
     commit: ({message, url, author, name}) => `- [${message}](${url}) - ${author ? `@${author}` : name}`,
-    issue: "- {{name}} [{{text}}]({{url}}) by [{{user_login}}]({{user_url}})",
+    issue: "- {{name}} [{{text}}]({{url}})",
     label: "[**{{label}}**]",
     noLabel: "closed",
     group: "\n#### {{heading}}\n",
@@ -10,8 +10,9 @@ module.exports = {
     releaseSeparator: "\n---\n\n"
   },
   groupBy: {
-    "Enhancements:": ["type: enhancement", "Infrastructure"],
-    "Bug Fixes:": ["type: accepted/bug"]
+    "Enhancements:": ["enhancement", "internal"],
+    "Bug Fixes:": ["bug"],
+    "Features": ["feature"]
   },
   ignoreIssuesWith: [
     "skip-changelog"

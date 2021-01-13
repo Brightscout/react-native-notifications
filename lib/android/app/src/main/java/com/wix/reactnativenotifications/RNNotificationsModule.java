@@ -100,13 +100,24 @@ public class RNNotificationsModule extends ReactContextBaseJavaModule implements
         if(BuildConfig.DEBUG) Log.d(LOGTAG, "Native method invocation: postLocalNotification");
         final Bundle notificationProps = Arguments.toBundle(notificationPropsMap);
         final IPushNotification pushNotification = PushNotification.get(getReactApplicationContext().getApplicationContext(), notificationProps);
-        pushNotification.onPostRequest(notificationId);
+        double date = notificationProps.getDouble("fireDate", 0);
+        if (date == 0) {
+            pushNotification.onPostRequest(notificationId);
+        } else {
+            pushNotification.onScheduleRequest(notificationId);
+        }
     }
 
     @ReactMethod
     public void cancelLocalNotification(int notificationId) {
         IPushNotificationsDrawer notificationsDrawer = PushNotificationsDrawer.get(getReactApplicationContext().getApplicationContext());
         notificationsDrawer.onNotificationClearRequest(notificationId);
+    }
+
+    @ReactMethod
+    public void cancelAllLocalNotifications() {
+        IPushNotificationsDrawer notificationDrawer = PushNotificationsDrawer.get(getReactApplicationContext().getApplicationContext());
+        notificationDrawer.onCancelAllLocalNotifications();
     }
 
     @ReactMethod

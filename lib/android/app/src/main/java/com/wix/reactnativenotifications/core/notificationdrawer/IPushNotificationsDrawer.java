@@ -11,4 +11,5 @@ public interface IPushNotificationsDrawer {
     void onNotificationClearRequest(int id);
     void onNotificationClearRequest(String tag, int id);
     void onAllNotificationsClearRequest();
+    void onCancelAllLocalNotifications();
 }

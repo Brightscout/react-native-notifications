@@ -2,9 +2,15 @@ package com.wix.reactnativenotifications.core.notificationdrawer;
 
 import android.app.Activity;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.os.Bundle;
+import android.util.Log;
 
 import com.wix.reactnativenotifications.core.AppLaunchHelper;
+import com.wix.reactnativenotifications.core.helpers.ScheduleNotificationHelper;
+
+import static com.wix.reactnativenotifications.Defs.LOGTAG;
 
 public class PushNotificationsDrawer implements IPushNotificationsDrawer {
 
@@ -61,5 +67,38 @@ public class PushNotificationsDrawer implements IPushNotificationsDrawer {
     public void onAllNotificationsClearRequest() {
         final NotificationManager notificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancelAll();
+    }
+
+    @Override
+    public void onCancelAllLocalNotifications() {
+        onAllNotificationsClearRequest();
+        cancelAllScheduledNotifications();
+    }
+
+    protected void cancelAllScheduledNotifications() {
+        Log.i(LOGTAG, "Cancelling all scheduled notifications");
+        ScheduleNotificationHelper helper = ScheduleNotificationHelper.getInstance(mContext);
+
+        for (String notificationId : helper.getPreferencesKeys()) {
+            cancelScheduledNotification(notificationId);
+        }
+    }
+
+    protected void cancelScheduledNotification(String notificationId) {
+        Log.i(LOGTAG, "Cancelling scheduled notification: " + notificationId);
+
+        ScheduleNotificationHelper helper = ScheduleNotificationHelper.getInstance(mContext);
+
+        // Remove it from the alarm manger schedule
+        Bundle bundle = new Bundle();
+        bundle.putString("id", notificationId);
+        PendingIntent pendingIntent = helper.createPendingNotificationIntent(Integer.parseInt(notificationId), bundle);
+        helper.cancelScheduledNotificationIntent(pendingIntent);
+
+        helper.removePreference(notificationId);
+
+        // Remove it from the notification center
+        final NotificationManager notificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(Integer.parseInt(notificationId));
     }
 }

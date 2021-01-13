@@ -1,5 +1,6 @@
 package com.wix.reactnativenotifications.core.notification;
 
+import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -8,6 +9,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
+import me.pushy.sdk.Pushy;
 
 import com.facebook.react.bridge.ReactContext;
 import com.wix.reactnativenotifications.core.AppLaunchHelper;
@@ -18,7 +21,9 @@ import com.wix.reactnativenotifications.core.InitialNotificationHolder;
 import com.wix.reactnativenotifications.core.JsIOHelper;
 import com.wix.reactnativenotifications.core.NotificationIntentAdapter;
 import com.wix.reactnativenotifications.core.ProxyService;
+import com.wix.reactnativenotifications.core.helpers.ScheduleNotificationHelper;
 
+import static com.wix.reactnativenotifications.Defs.LOGTAG;
 import static com.wix.reactnativenotifications.Defs.NOTIFICATION_OPENED_EVENT_NAME;
 import static com.wix.reactnativenotifications.Defs.NOTIFICATION_RECEIVED_EVENT_NAME;
 import static com.wix.reactnativenotifications.Defs.NOTIFICATION_RECEIVED_BACKGROUND_EVENT_NAME;
@@ -29,7 +34,7 @@ public class PushNotification implements IPushNotification {
     final protected AppLifecycleFacade mAppLifecycleFacade;
     final protected AppLaunchHelper mAppLaunchHelper;
     final protected JsIOHelper mJsIOHelper;
-    final protected PushNotificationProps mNotificationProps;
+    protected PushNotificationProps mNotificationProps;
     final protected AppVisibilityListener mAppVisibilityListener = new AppVisibilityListener() {
         @Override
         public void onAppVisible() {
@@ -77,6 +82,42 @@ public class PushNotification implements IPushNotification {
     public int onPostRequest(Integer notificationId) {
         return postNotification(notificationId);
     }
+
+    @Override
+    public void onScheduleRequest(Integer notificationId) {
+        Bundle bundle = mNotificationProps.asBundle();
+
+        if (bundle.getString("body") == null) {
+            Log.e(LOGTAG, "No message specified for the scheduled notification");
+            return;
+        }
+
+        double date = bundle.getDouble("fireDate", 0);
+        if (date == 0) {
+            Log.e(LOGTAG, "No date specified for the scheduled notification");
+            return;
+        }
+
+        ScheduleNotificationHelper helper = ScheduleNotificationHelper.getInstance(mContext);
+        String notificationIdStr = Integer.toString(notificationId);
+        boolean isSaved = helper.savePreferences(notificationIdStr, mNotificationProps);
+        if (!isSaved) {
+            Log.e(LOGTAG, "Failed to save preference for notificationId " + notificationIdStr);
+        }
+
+        PendingIntent pendingIntent = helper.createPendingNotificationIntent(notificationId, bundle);
+        long fireDate = (long) date;
+        helper.schedulePendingNotificationIntent(pendingIntent, fireDate);
+    }
+
+    @Override
+    public int onPostScheduledRequest(Integer notificationId) {
+        ScheduleNotificationHelper helper = ScheduleNotificationHelper.getInstance(mContext);
+        helper.removePreference(String.valueOf(notificationId));
+
+        return postNotification(notificationId);
+    }
+
 
     @Override
     public PushNotificationProps asProps() {
@@ -140,7 +181,9 @@ public class PushNotification implements IPushNotification {
     }
 
     protected Notification buildNotification(PendingIntent intent) {
-        return getNotificationBuilder(intent).build();
+        Notification.Builder builder = getNotificationBuilder(intent);
+        Notification notification = builder.build();
+        return notification;
     }
 
     protected Notification.Builder getNotificationBuilder(PendingIntent intent) {

@@ -1,18 +1,1 @@
-example/
-test/
-node_modules/
-website/
-docs/
-docs_old/
-scripts/
-e2e/
-
-.eslintrc
-*.yml
-coverage/
-.history
-android/.idea
-android/build/
-.idea
-.history/
-.github/
+ --exclude=example/ --exclude=test/ --exclude=node_modules/ --exclude=website/ --exclude=docs/ --exclude=docs_old/ --exclude=scripts/ --exclude=e2e/ --exclude= --exclude=.eslintrc --exclude=*.yml --exclude=coverage/ --exclude=.history --exclude=android/.idea --exclude=android/build/ --exclude=.idea --exclude=.history/ --exclude=.github/
