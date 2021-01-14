@@ -73,7 +73,7 @@ public class RNNotificationsModule extends ReactContextBaseJavaModule implements
 
     @ReactMethod
     public void refreshToken() {
-        if(BuildConfig.DEBUG) Log.d(LOGTAG, "Native method invocation: refreshToken()");
+
     }
 
     @ReactMethod
