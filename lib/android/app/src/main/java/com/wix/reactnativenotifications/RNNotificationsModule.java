@@ -26,7 +26,7 @@ import com.wix.reactnativenotifications.core.notification.PushNotification;
 import com.wix.reactnativenotifications.core.notification.PushNotificationProps;
 import com.wix.reactnativenotifications.core.notificationdrawer.IPushNotificationsDrawer;
 import com.wix.reactnativenotifications.core.notificationdrawer.PushNotificationsDrawer;
-import com.wix.reactnativenotifications.fcm.FcmInstanceIdRefreshHandlerService;
+import com.wix.reactnativenotifications.pushy.PushyTokenHandlerService;
 
 import static com.wix.reactnativenotifications.Defs.LOGTAG;
 
@@ -49,7 +49,7 @@ public class RNNotificationsModule extends ReactContextBaseJavaModule implements
     @Override
     public void initialize() {
         if(BuildConfig.DEBUG) Log.d(LOGTAG, "Native module init");
-        startFcmIntentService(FcmInstanceIdRefreshHandlerService.EXTRA_IS_APP_INIT);
+        startFcmIntentService(PushyTokenHandlerService.EXTRA_IS_APP_INIT);
 
         final IPushNotificationsDrawer notificationsDrawer = PushNotificationsDrawer.get(getReactApplicationContext().getApplicationContext());
         notificationsDrawer.onAppInit();
@@ -74,7 +74,6 @@ public class RNNotificationsModule extends ReactContextBaseJavaModule implements
     @ReactMethod
     public void refreshToken() {
         if(BuildConfig.DEBUG) Log.d(LOGTAG, "Native method invocation: refreshToken()");
-        startFcmIntentService(FcmInstanceIdRefreshHandlerService.EXTRA_MANUAL_REFRESH);
     }
 
     @ReactMethod
@@ -153,8 +152,8 @@ public class RNNotificationsModule extends ReactContextBaseJavaModule implements
 
     protected void startFcmIntentService(String extraFlag) {
         final Context appContext = getReactApplicationContext().getApplicationContext();
-        final Intent tokenFetchIntent = new Intent(appContext, FcmInstanceIdRefreshHandlerService.class);
+        final Intent tokenFetchIntent = new Intent(appContext, PushyTokenHandlerService.class);
         tokenFetchIntent.putExtra(extraFlag, true);
-        FcmInstanceIdRefreshHandlerService.enqueueWork(appContext, tokenFetchIntent);
+        PushyTokenHandlerService.enqueueWork(appContext, tokenFetchIntent);
     }
 }
