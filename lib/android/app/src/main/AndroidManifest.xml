@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.wix.reactnativenotifications">
 
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <application>
 
         <!--
@@ -22,6 +23,9 @@
             android:name=".fcm.FcmInstanceIdRefreshHandlerService"
             android:exported="false"
             android:permission="android.permission.BIND_JOB_SERVICE" />
+        <receiver android:name=".core.notification.PushNotificationPublisher"
+            android:enabled="true"
+            android:exported="false" />
     </application>
 
 </manifest>
